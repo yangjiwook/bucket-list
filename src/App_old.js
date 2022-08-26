@@ -1,14 +1,14 @@
 import React,{useState} from 'react';
 import styled, {ThemeProvider} from 'styled-components/native';
 import theme from './theme';
-import { StatusBar, Alert } from 'react-native';
+import { StatusBar } from 'react-native';
 import Input from './components/Input';
 import Task from './components/Task';
 import {Dimensions} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppLoading from 'expo-app-loading';
 import All_delBtn from './components/All_delBtn';
-import LineButton from './components/LineButton';
+import { Alert } from 'react-native';
 
 const Container = styled.SafeAreaView`
   flex:1;
@@ -118,6 +118,56 @@ export default function App() {
     storeData('tasks', currentTasks);  //로컬저장소에 저장
   };
 
+  //완료항목 전체삭제
+  const _all_deleteTask = () => {
+    const currentTasks = { ...tasks };
+    console.log(currentTasks);
+    console.log(navigator.userAgent);
+    if (['Win16', 'Win32', 'Win64', 'Mac', 'MacIntel'].find(element => element == navigator.platform)) {
+      //PC 반응
+      if (window.confirm("정말 삭제합니까?")) {
+        clearList_delete();  
+      } else {
+        
+      console.log(currentTasks);
+      }
+    }
+    else {
+      //모바일 반응
+      Alert.alert(
+        '전체삭제',
+        '전체삭제하시겠습니까?',
+        [
+          { text: '취소', onPress: () => {console.log('취소') }},
+          { text: '삭제', onPress: () => { clearList_delete(); }}
+        ]
+      );
+    }    
+
+
+    function clearList_delete() {
+      
+      Object.values(tasks).map(ele => {
+        if (ele.completed === true) {
+          //console.log(ele.id);          
+          delete currentTasks[ele.id];
+        }
+      });
+      storeData('tasks', currentTasks);
+      console.log(currentTasks);
+    }
+
+
+
+    
+
+
+    // function exit() {
+    //   console.log('실행되지않습니다.');
+    // }
+
+    
+  }
 
   //완료
   const _toggleTask = id => {
@@ -134,42 +184,6 @@ export default function App() {
     //setTasks(currentTasks); //tasks = currentTasks;
     storeData('tasks', currentTasks);  //로컬저장소에 저장
   }
-
-  
-  //완료항목 전체삭제
-  const _delAllTask = () => {
-    const currentTasks = { ...tasks };
-
-    const completedTasks =
-      Object.entries(currentTasks)
-        .filter(task => task[1].completed == true);
-    
-    //완료항목이 없는경우
-    if (completedTasks.length < 1) return alert('삭제할 항목이 없음');
-
-    deleteCompletedItem = () => {
-      const filterd_Tasks =
-      Object.fromEntries(Object.entries(currentTasks)
-                               .filter(task => task[1].completed ==false));
-      storeData('tasks',filterd_Tasks);
-    }
-
-    Alert.alert(
-      "삭제",           // 경고창 제목
-      "완료항목 전체를 삭제하시겠습니까?",   // 경고창 메시지
-      [
-        {
-          text: "예",
-          onPress: () =>  deleteCompletedItem(),
-        },
-        {
-          text: "아니오",
-          onPress: () => { }
-        }
-      ]
-    );
-  }
-
 
   //입력필드에 포커스가 떠났을때
   const _onBlur = ()=>{
@@ -217,11 +231,7 @@ export default function App() {
           }
           </List>
             
-          {/* <All_delBtn  _all_deleteTask={_all_deleteTask}/> */}
-          <LineButton
-            text='완료항목 전체삭제'
-            onPressOut={_delAllTask}
-          />
+          <All_delBtn  _all_deleteTask={_all_deleteTask}/>
         
       </Container>
     </ThemeProvider>
