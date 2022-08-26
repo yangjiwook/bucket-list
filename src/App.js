@@ -122,17 +122,29 @@ export default function App() {
   const _all_deleteTask = () => {
     const currentTasks = { ...tasks };
     console.log(currentTasks);
-    
-    Alert.alert(
-      '전체삭제',
-      '전체삭제하시겠습니까?',
-      [
-        { text: '취소', onPress: () => {console.log('취소') }},
-        { text: '삭제', onPress: () => { clearList_delete(); }}
-      ]
-    );
+    console.log(navigator.userAgent);
+    if (['Win16', 'Win32', 'Win64', 'Mac', 'MacIntel'].find(element => element == navigator.platform)) {
+      //PC 반응
+      if (window.confirm("정말 삭제합니까?")) {
+        clearList_delete();  
+      } else {
+        
+      console.log(currentTasks);
+      }
+    }
+    else {
+      //모바일 반응
+      Alert.alert(
+        '전체삭제',
+        '전체삭제하시겠습니까?',
+        [
+          { text: '취소', onPress: () => {console.log('취소') }},
+          { text: '삭제', onPress: () => { clearList_delete(); }}
+        ]
+      );
+    }    
 
-  
+
     function clearList_delete() {
       
       Object.values(tasks).map(ele => {
